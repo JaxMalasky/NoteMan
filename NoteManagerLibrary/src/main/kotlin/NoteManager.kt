@@ -6,8 +6,9 @@ import java.io.File
 
  class NoteManager {
     private val notes = mutableListOf<Note>()
+     private var notesFile = File("notes.json")
 
-    //used to create note and add it to the array
+     //used to create note and add it to the array
     fun createNote(title: String, noteBody: String){
        val note  = Note(title,noteBody)
         notes.add(note)
@@ -26,7 +27,7 @@ import java.io.File
         notes.removeAt(index)
         saveNotes() //update file after deleting a note
     }
-
+// to be implemented Delete by note function, may be useful
 //     fun deleteNote(note: Note){
 //         for(notes in notes){
 //
@@ -38,6 +39,22 @@ import java.io.File
 //         saveNotes() //update file after deleting a note
 //     }
 
+     //sorts list by oldest first
+     fun sortNotesOldest(){
+         notes.sortBy{it.time}
+     }
+     //sorts list by newest first
+     fun sortNotesNewest(){
+         notes.sortByDescending {it.time}
+     }
+
+
+
+     fun clearAllNotes(){
+         notes.clear()
+         notesFile.writeText("[]")
+
+     }
 
     //Overloading edit functions.
 
@@ -46,35 +63,35 @@ import java.io.File
         note.noteBody = body
     }
 
-    //used to grab note by int value
+    //used to edit note by int value
     fun editNote(i: Int, title: String, body: String){
        if(notes.isEmpty()){
-           println("No notes to edit")
+
            return
        }
         val index = i - 1 // calculate the index for the mutable list.
         notes[index].title = title
         notes[index].noteBody = body
     }
+
+     fun loadNotes(){
+
+         if(!notesFile.exists()){
+             notesFile.writeText("[]")
+             return
+         }
+
+         val notesJson = notesFile.readText()
+         notes.clear() // clear notes mutable list
+         notes.addAll(Json.decodeFromString(notesJson)) //decode json and add to string
+
+     }
+
     //saves notes list in JSON format
      fun saveNotes(){
          val json = Json
          val notesJson = json.encodeToString(notes)
          File("notes.json").writeText(notesJson)
-     }
-
-     fun loadNotes(){
-         val file = File("notes.json")
-         if(!file.exists()){
-             file.createNewFile()
-             file.writeText("[]")
-             return
-         }
-
-             val notesJson = file.readText()
-             notes.clear() // clear notes mutable list
-             notes.addAll(Json.decodeFromString(notesJson)) //decode json and add to string
-
      }
 
 
